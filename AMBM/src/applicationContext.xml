@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.springframework.org/schema/beans" xmlns:context="http://www.springframework.org/schema/context" xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx" xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd ">
+
+<bean name="userAction" class="JY.Action.UserACtion" scope="prototype">
+	<property name="userService" ref="userService"></property>
+</bean>
+
+<bean name="userService" class="JY.Service.Impl.UserServiceImpl">
+	<property name="userDao" ref="userDao"></property>
+</bean>
+
+<bean name="userDao" class="JY.Dao.Impl.UserDaoImpl">
+	<property name="sessionFactory" ref="sessionFactory"></property>
+</bean>
+
+<!-- 配置C3P0连接池 -->
+<context:property-placeholder location="classpath:db.properties" />
+	<bean name="dataSource"
+		class="com.mchange.v2.c3p0.ComboPooledDataSource">
+		<property name="jdbcUrl" value="${jdbc.jdbcUrl}"></property>
+		<property name="driverClass" value="${jdbc.driverClass}"></property>
+		<property name="user" value="${jdbc.user}"></property>
+		<property name="password" value="${jdbc.password}"></property>
+	</bean>
+<!--
+	 hibernate配置方案1
+	 	仍然配置外部的hibernate.xml
+<bean name="sessionFactory" class="org.springframework.orm.hibernate5.LocalSessionFactoryBean">
+	<property name="configLocation" value="classpath:hibernate.cfg.xml"></property>
+</bean>
+ -->
+
+
+<!-- 
+	hibernate配置方案2
+		
+ -->
+ <bean name="sessionFactory" class="org.springframework.orm.hibernate5.LocalSessionFactoryBean">
+	<!-- 配置hibernate基本信息 -->
+	<property name="hibernateProperties">
+		<props>
+<!-- 			
+			<prop key="hibernate.connection.url">jdbc:mysql://localhost:3306/yyy?serverTimezone=UTC&amp;useSSL=false</prop>
+			<prop key="hibernate.connection.username">root</prop>
+			<prop key="hibernate.connection.password">831015</prop>
+			<prop key="hibernate.connection.driver_class">com.mysql.cj.jdbc.Driver</prop> 
+-->
+			<prop key="hibernate.dialect">org.hibernate.dialect.MySQL5InnoDBDialect</prop>
+			
+			<prop key="hibernate.show_sql">true</prop>
+			<prop key="hibernate.format_sql">true</prop>
+			<prop key="hibernate.hbm2ddl.auto">update</prop>
+		</props>
+	</property>
+	<!-- 引入ORM元素 -->
+	<property name="mappingDirectoryLocations" value="classpath:/JY/Domain"></property>
+	<property name="dataSource" ref="dataSource"></property>
+</bean>
+
+<bean name="transactionManager" class="org.springframework.orm.hibernate5.HibernateTransactionManager">
+	<property name="sessionFactory" ref="sessionFactory"></property>
+</bean>
+
+<!-- <tx:advice transaction-manager="transactionManager" id="txAdvice">
+	<tx:attributes>
+			<tx:method name="save*" isolation="REPEATABLE_READ" propagation="REQUIRED" read-only="false"/>
+			<tx:method name="delete*" isolation="REPEATABLE_READ" propagation="REQUIRED" read-only="false"/>
+			<tx:method name="find*" isolation="REPEATABLE_READ" propagation="REQUIRED" read-only="false"/>
+			<tx:method name="*" isolation="REPEATABLE_READ" propagation="REQUIRED" read-only="false"/>
+	</tx:attributes>
+</tx:advice>
+
+<aop:config>
+	<aop:pointcut expression="execution(* JY.Service.*ServiceImpl.*(..))" id="txPc"/>
+	<aop:advisor advice-ref="txAdvice" pointcut-ref="txPc"/>
+</aop:config> -->
+<tx:annotation-driven transaction-manager="transactionManager"/>
+
+</beans>

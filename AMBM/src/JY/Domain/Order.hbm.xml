@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC 
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+ <hibernate-mapping package="JY.Domain">
+ 	<class name="Order" table="AMBM_Order">
+ 		<id name="order_id">
+ 		<generator class="native"></generator>
+ 		 </id>
+ 		
+ 		<property name="order_date" ></property>
+ 		<property name="order_total" ></property>
+ 		<property name="order_description"></property>
+ 		<property name="order_status"></property>
+ 		
+ 		<set name="order_items">
+ 			<key column="OrderItem_id" >
+ 			</key>
+ 			<one-to-many class="JY.Domain.OrderItem"/>
+ 		</set>
+ 	</class>
+ </hibernate-mapping>
